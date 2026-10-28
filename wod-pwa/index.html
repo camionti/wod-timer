@@ -236,6 +236,7 @@ const PATHS = {
   reset: '<path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8M3 3v5h5"/>',
   save: '<path d="M6 3h12v18l-6-4-6 4z"/>',
   hist: '<path d="M3 12a9 9 0 109-9M3 4v5h5M12 7v5l3 2"/>',
+  sliders: '<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2.5"/><circle cx="9" cy="12" r="2.5"/><circle cx="17" cy="18" r="2.5"/>',
 };
 const ico = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${PATHS[k]}</svg>`;
 const FIELDS = {
@@ -291,14 +292,16 @@ function paneTimer() {
   const rows = [...FIELDS[cfg.mode], PRE].map(([k, label, , , , note]) =>
     `<div class="row"><label>${label}${note ? `<small>${note}</small>` : ''}</label><div class="step">
       <button data-k="${k}" data-d="-1">−</button><span>${fieldVal(k)}</span><button data-k="${k}" data-d="1">+</button></div></div>`).join('');
-  const sw = (key, on) => `<button class="sw ${on ? 'on' : ''}" data-s="${key}" aria-label="${key}"><i></i></button>`;
-  const tones = Object.entries(TONES).map(([k, t]) =>
-    `<button data-tone="${k}" class="${k === set.tone ? 'sel' : ''}">${t[0]}</button>`).join('');
   return `<div class="modes">${modes}</div>
     <div class="hint">${curName ? `<b>${esc(curName)}</b> · ` : ''}${MODES[cfg.mode].hint}</div>
     <div class="card">${rows}</div>
-    <button class="ghostbtn" data-act="savewod">${ico('save')}Guardar este WOD</button>
-    <div class="title">AJUSTES</div>
+    <button class="ghostbtn" data-act="savewod">${ico('save')}Guardar este WOD</button>`;
+}
+function paneSettings() {
+  const sw = (key, on) => `<button class="sw ${on ? 'on' : ''}" data-s="${key}" aria-label="${key}"><i></i></button>`;
+  const tones = Object.entries(TONES).map(([k, t]) =>
+    `<button data-tone="${k}" class="${k === set.tone ? 'sel' : ''}">${t[0]}</button>`).join('');
+  return `<div class="title" style="margin-top:4px">AJUSTES</div>
     <div class="card sets">
       <div class="row"><label>Sonido</label>${sw('sound', set.sound)}</div>
       <div class="row"><label>Tono</label><div class="seg c3 mini">${tones}</div></div>
@@ -325,7 +328,7 @@ function paneHist() {
 function renderSetup() {
   document.querySelectorAll('#dock button').forEach(b => b.classList.toggle('sel', b.dataset.t === tab));
   $('startrow').style.display = tab === 'timer' ? 'block' : 'none';
-  $('pane').innerHTML = tab === 'timer' ? paneTimer() : tab === 'wods' ? paneWods() : paneHist();
+  $('pane').innerHTML = { timer: paneTimer, wods: paneWods, hist: paneHist, sets: paneSettings }[tab]();
 }
 
 function bestEntry(name, mode) {
@@ -590,7 +593,7 @@ $('xp').onclick = () => { reps++; if (navigator.vibrate) navigator.vibrate(10); 
 $('xm').onclick = () => { if (reps > 0) reps--; paint(); };
 
 $('start').innerHTML = ico('play') + 'START';
-$('dock').innerHTML = [['timer', 'fortime', 'Timer'], ['wods', 'save', 'Guardados'], ['hist', 'hist', 'Historial']]
+$('dock').innerHTML = [['timer', 'fortime', 'Timer'], ['wods', 'save', 'Guardados'], ['hist', 'hist', 'Historial'], ['sets', 'sliders', 'Ajustes']]
   .map(([t, i, l]) => `<button data-t="${t}">${ico(i)}<span>${l}</span></button>`).join('');
 {
   const d = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
