@@ -173,6 +173,9 @@
   .slide .knob { position: absolute; left: 4px; top: 4px; width: 54px; height: 54px; border-radius: 50%; background: var(--accent);
     color: var(--on); display: grid; place-items: center; touch-action: none; }
   .slide .knob svg { width: 22px; height: 22px; }
+  .closex { display: none; position: absolute; top: calc(env(safe-area-inset-top) + 12px); right: 16px; z-index: 5;
+    width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
+    font-size: 28px; line-height: 1; color: var(--ink); }
   .btns { display: flex; gap: 10px; padding-top: 6px; }
   .big { flex: 1; display: flex; align-items: center; justify-content: center; height: 58px; padding: 0 10px;
     border: 1px solid var(--line); border-radius: 16px; font-size: 15px; font-weight: 700; letter-spacing: .05em;
@@ -200,6 +203,7 @@
 </div>
 
 <div class="screen" id="run">
+  <button class="closex" id="closeX" aria-label="Cerrar">×</button>
   <div class="chip" id="head"></div>
   <div class="warn" id="warn">Mantené la pantalla encendida: el celular no permite bloquearla</div>
   <div class="spacer"></div>
@@ -542,7 +546,8 @@ function show() {
     state === 'countdown' ? btn('PAUSA', 'y', 'pause', 'pause') :
     state === 'running' ? '<div class="slide" id="slide"><div class="knob" id="knob">' + ico('play') + '</div><span>Deslizá para terminar</span></div>' :
     state === 'paused' ? btn('SEGUIR', 'g', 'resume', 'play') + btn('RESET', 'r', 'reset', 'reset') :
-    state === 'finished' ? (resSaved ? `<button class="big ghost" disabled>${ico('check')}<span>GUARDADO</span></button>` : btn('GUARDAR', 'g', 'save', 'save')) + btn('NUEVO', '', 'reset', 'reset') : '';
+    '';
+  $('closeX').style.display = state === 'finished' ? 'block' : 'none';
   $('rounds').style.display = cfg.mode === 'amrap' && state !== 'countdown' ? 'flex' : 'none';
   renderLaps();
   paint();
@@ -591,6 +596,7 @@ $('wtxt').value = cfg.text || '';
 const onTxt = e => { cfg.text = e.target.value; put('wodcfg', cfg); $('wtxt').value = cfg.text; };
 $('wtxt').oninput = onTxt;
 $('setup').addEventListener('input', e => { if (e.target.id === 'wtxt2') onTxt(e); });
+$('closeX').onclick = reset;
 $('start').onclick = begin;
 $('ctl').addEventListener('pointerdown', e => {
   const k = e.target.closest('#knob'); if (!k) return;
