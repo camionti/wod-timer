@@ -1,4 +1,4 @@
-const CACHE = 'wod-timer-v8';
+const CACHE = 'wod-timer-v9';
 const FILES = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

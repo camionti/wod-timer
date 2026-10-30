@@ -167,6 +167,12 @@
     background: var(--card); font: inherit; font-size: 16px; line-height: 1.4; color: var(--ink); resize: vertical;
     user-select: text; -webkit-user-select: text; }
   #setup .wtxt { width: 100%; margin: 14px 0 0; }
+  .slide { position: relative; flex: 1; height: 64px; border-radius: 32px; background: var(--card); border: 1px solid var(--line);
+    overflow: hidden; touch-action: none; display: flex; align-items: center; justify-content: center; }
+  .slide span { font-size: 15px; font-weight: 700; letter-spacing: .06em; color: var(--muted); pointer-events: none; }
+  .slide .knob { position: absolute; left: 4px; top: 4px; width: 54px; height: 54px; border-radius: 50%; background: var(--accent);
+    color: var(--on); display: grid; place-items: center; touch-action: none; }
+  .slide .knob svg { width: 22px; height: 22px; }
   .btns { display: flex; gap: 10px; padding-top: 6px; }
   .big { flex: 1; display: flex; align-items: center; justify-content: center; height: 58px; padding: 0 10px;
     border: 1px solid var(--line); border-radius: 16px; font-size: 15px; font-weight: 700; letter-spacing: .05em;
@@ -392,6 +398,7 @@ const round = () => Math.min(Math.floor(elapsed / cycle()) + 1, N());
 const phase = () => !isIv() ? 'work' : (elapsed % cycle() < W() ? 'work' : 'rest');
 function display() {
   if (state === 'countdown') return Math.max(pre, 0);
+  if (state === 'finished' && finalManual) return elapsed;
   if (state === 'finished' && cfg.mode !== 'fortime') return 0;
   switch (cfg.mode) {
     case 'fortime': return elapsed;
@@ -533,7 +540,7 @@ function show() {
   $('run').classList.toggle('on', state !== 'idle');
   $('ctl').innerHTML =
     state === 'countdown' ? btn('PAUSA', 'y', 'pause', 'pause') :
-    state === 'running' ? btn('PAUSA', 'y', 'pause', 'pause') + (cfg.mode === 'fortime' ? btn('VUELTA', 'ghost', 'lap', 'flag') + btn('FIN', '', 'finish', 'stop') : '') :
+    state === 'running' ? '<div class="slide" id="slide"><div class="knob" id="knob">' + ico('play') + '</div><span>Deslizá para terminar</span></div>' :
     state === 'paused' ? btn('SEGUIR', 'g', 'resume', 'play') + btn('RESET', 'r', 'reset', 'reset') :
     state === 'finished' ? (resSaved ? `<button class="big ghost" disabled>${ico('check')}<span>GUARDADO</span></button>` : btn('GUARDAR', 'g', 'save', 'save')) + btn('NUEVO', '', 'reset', 'reset') : '';
   $('rounds').style.display = cfg.mode === 'amrap' && state !== 'countdown' ? 'flex' : 'none';
@@ -543,7 +550,7 @@ function show() {
 const C = 2 * Math.PI * 46;
 function paint() {
   if (state === 'idle') { document.body.className = ''; return; }
-  const up = cfg.mode === 'fortime' && state !== 'countdown';
+  const up = (cfg.mode === 'fortime' && state !== 'countdown') || (state === 'finished' && finalManual);
   const v = up ? Math.floor(display()) : Math.ceil(display());
   $('time').textContent = fmt(v);
   $('rc').textContent = roundCount;
@@ -566,7 +573,8 @@ function paint() {
   else if (state === 'finished') {
     head = '¡TERMINADO!';
     sub = cfg.mode === 'fortime' ? (finalManual ? 'TIEMPO FINAL' : 'TIME CAP')
-        : cfg.mode === 'amrap' ? getResult().text.toUpperCase() : '';
+        : cfg.mode === 'amrap' ? (finalManual ? 'TIEMPO FINAL · ' : '') + getResult().text.toUpperCase()
+        : finalManual ? 'TIEMPO FINAL' : '';
   }
   else if (state === 'paused') head = 'PAUSA';
   else if (isIv()) { head = phase() === 'work' ? 'TRABAJO' : 'DESCANSO'; sub = `RONDA ${round()} / ${N()}`; }
@@ -584,6 +592,17 @@ const onTxt = e => { cfg.text = e.target.value; put('wodcfg', cfg); $('wtxt').va
 $('wtxt').oninput = onTxt;
 $('setup').addEventListener('input', e => { if (e.target.id === 'wtxt2') onTxt(e); });
 $('start').onclick = begin;
+$('ctl').addEventListener('pointerdown', e => {
+  const k = e.target.closest('#knob'); if (!k) return;
+  const box = $('slide'), max = box.clientWidth - 62; let x0 = e.clientX, dx = 0;
+  k.setPointerCapture(e.pointerId); k.style.transition = 'none';
+  k.onpointermove = ev => { dx = Math.min(max, Math.max(0, ev.clientX - x0)); k.style.transform = `translateX(${dx}px)`; };
+  k.onpointerup = k.onpointercancel = () => {
+    k.onpointermove = k.onpointerup = k.onpointercancel = null;
+    if (dx >= max * .85) finish(true);
+    else { k.style.transition = 'transform .2s'; k.style.transform = ''; }
+  };
+});
 $('ctl').onclick = e => {
   const a = e.target.dataset.a;
   if (a) ({ pause, resume, finish: () => finish(true), reset, lap, save: saveResult })[a]();
