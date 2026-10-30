@@ -42,9 +42,11 @@
   #toast.on { opacity: 1; transform: translate(-50%, 0); }
 
   /* ---------- Setup ---------- */
-  .brand { margin: 8px 0 22px; }
-  .brand i, .brand small { display: none; }
-  .brand b { font-size: 30px; font-weight: 700; letter-spacing: -.03em; }
+  .brand { margin: 8px 0 22px; display: flex; align-items: center; gap: 12px; }
+  .brand small { display: none; }
+  .brand img { width: 44px; height: 44px; border-radius: 11px; }
+  .brand b { font-size: 30px; font-weight: 800; letter-spacing: .01em; }
+  .brand b span { color: var(--accent); }
 
   .modes { display: flex; gap: 8px; overflow-x: auto; margin: 0 -22px; padding: 0 22px 2px; scrollbar-width: none; }
   .modes::-webkit-scrollbar { display: none; }
@@ -194,7 +196,7 @@
 <div id="toast"></div>
 
 <div class="screen on" id="setup">
-  <div class="brand"><i>WOD</i><div><b>WOD Timer</b><small id="today"></small></div></div>
+  <div class="brand"><img src="icon-192.png" alt=""><div><b><span>WOD</span> TIMER</b><small id="today"></small></div></div>
   <div id="pane"></div>
   <div class="gowrap">
     <div id="startrow"><button class="go" id="start"></button></div>
