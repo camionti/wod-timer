@@ -6,22 +6,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="WOD Timer">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
-  @property --bg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+  @property --bg { syntax: '<color>'; inherits: true; initial-value: #000000; }
 
-  :root { --bg: #ffffff; --accent: #1fb455; --ok: #1fb455; --ink: #111113; --muted: #8a8a8e; --line: #ececef; }
-  body.countdown { --bg: #fff6e8; --accent: #ff9500; }
-  body.work      { --bg: #eefaf2; --accent: #1fb455; }
-  body.rest      { --bg: #fff0ef; --accent: #ff453a; }
-  body.finished  { --bg: #edf4ff; --accent: #0a84ff; }
-  body.paused    { --bg: #f5f5f7; --accent: #ff9500; }
+  :root { --bg: #000000; --accent: #22e06b; --ok: #22e06b; --ink: #ffffff; --muted: #8e8e93; --line: #26262a; --card: #131315; --on: #04140a; }
+  body.countdown { --bg: #0d0a00; --accent: #ffb020; }
+  body.work      { --bg: #031009; --accent: #22e06b; }
+  body.rest      { --bg: #140605; --accent: #ff5a4f; }
+  body.finished  { --bg: #000000; --accent: #22e06b; }
+  body.paused    { --bg: #0a0a0b; --accent: #ffb020; }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { background: #000; }
   html, body { margin: 0; height: 100%; color: var(--ink); overscroll-behavior: none;
     font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
     user-select: none; -webkit-user-select: none; }
@@ -36,8 +37,8 @@
 
   #toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 12px); z-index: 10;
     transform: translate(-50%, -24px); opacity: 0; pointer-events: none; transition: all .3s;
-    background: #fff; border: 1px solid var(--line); padding: 11px 18px; border-radius: 999px; font-weight: 600; font-size: 14px;
-    box-shadow: 0 6px 24px rgba(0,0,0,.10); white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis; }
+    background: var(--card); border: 1px solid var(--line); padding: 11px 18px; border-radius: 999px; font-weight: 600; font-size: 14px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.6); white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis; }
   #toast.on { opacity: 1; transform: translate(-50%, 0); }
 
   /* ---------- Setup ---------- */
@@ -47,16 +48,16 @@
 
   .modes { display: flex; gap: 8px; overflow-x: auto; margin: 0 -22px; padding: 0 22px 2px; scrollbar-width: none; }
   .modes::-webkit-scrollbar { display: none; }
-  .tile { flex: none; padding: 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: #fff;
+  .tile { flex: none; padding: 10px 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--card);
     font-size: 15px; font-weight: 600; color: var(--muted); transition: all .15s; }
   .tile svg, .tile small { display: none; }
   .tile b { font-size: 15px; font-weight: 600; }
-  .tile.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tile.sel { background: var(--accent); border-color: var(--accent); color: var(--on); }
 
-  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; background: #f2f2f4; border-radius: 12px; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; background: var(--card); border-radius: 12px; }
   .seg button { border: 0; background: none; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--muted);
     border-radius: 9px; white-space: nowrap; }
-  .seg button.sel { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .seg button.sel { background: var(--accent); color: var(--on); }
   .seg.mini { min-width: 190px; }
 
   .hint { color: var(--muted); font-size: 14px; line-height: 1.45; margin: 16px 0 6px; min-height: 40px; }
@@ -69,19 +70,19 @@
   .row label { font-size: 17px; font-weight: 500; }
   .row small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
   .step { display: flex; align-items: center; gap: 6px; }
-  .step button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: #fff;
+  .step button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
     font-size: 22px; line-height: 1; transition: transform .1s; }
   .step button:active { transform: scale(.88); }
   .step span { min-width: 56px; text-align: center; font-weight: 600; font-size: 22px; font-variant-numeric: tabular-nums; }
 
-  .sw { flex: none; width: 50px; height: 30px; border-radius: 15px; border: 0; background: #dedee2; position: relative; transition: background .2s; }
+  .sw { flex: none; width: 50px; height: 30px; border-radius: 15px; border: 0; background: #3a3a3e; position: relative; transition: background .2s; }
   .sw i { position: absolute; top: 2px; left: 2px; width: 26px; height: 26px; border-radius: 50%; background: #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
   .sw.on { background: var(--ok); }
   .sw.on i { transform: translateX(20px); }
 
   .ghostbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 14px 0 6px; padding: 14px 0;
-    border-radius: 14px; border: 1px solid var(--line); background: #fff; font-size: 15px; font-weight: 600; }
+    border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-size: 15px; font-weight: 600; }
   .ghostbtn svg { width: 17px; height: 17px; color: var(--accent); }
   .ghostbtn:active { transform: scale(.98); }
   .sets { margin-bottom: 8px; }
@@ -95,17 +96,17 @@
   .item b { font-size: 17px; font-weight: 600; }
   .item small { display: block; color: var(--muted); font-size: 13px; margin-top: 3px; }
   .item .res { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
-  .item .x { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 0; background: #f2f2f4; font-size: 17px; color: var(--muted); }
-  .best { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: #fff0b8;
+  .item .x { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--line); font-size: 17px; color: var(--muted); }
+  .best { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: #2a2500; color: #ffd84a;
     font-size: 10px; font-weight: 700; letter-spacing: .08em; vertical-align: middle; }
 
-  .gowrap { position: sticky; bottom: 0; margin-top: auto; padding: 18px 0 0; background: linear-gradient(180deg, transparent, #fff 24%); }
+  .gowrap { position: sticky; bottom: 0; margin-top: auto; padding: 18px 0 0; background: linear-gradient(180deg, transparent, #000 24%); }
   .go { width: 100%; padding: 18px 0; border: 0; border-radius: 16px; font-size: 17px; font-weight: 700; letter-spacing: .06em;
-    color: #fff; background: var(--ok); transition: transform .12s; }
+    color: var(--on); background: var(--ok); transition: transform .12s; }
   .go svg { display: none; }
   .go:active { transform: scale(.98); }
 
-  .dock { display: flex; margin: 12px -22px 0; padding: 0 12px; background: #fff; border-top: 1px solid var(--line); }
+  .dock { display: flex; margin: 12px -22px 0; padding: 0 12px; background: var(--card); border-top: 1px solid var(--line); }
   .dock button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0 8px;
     border: 0; background: none; font-size: 11px; font-weight: 600; color: var(--muted); }
   .dock button svg { width: 22px; height: 22px; }
@@ -116,13 +117,13 @@
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .chip::before { display: none; }
   .warn { display: none; align-self: center; margin-top: 10px; padding: 8px 14px; border-radius: 10px;
-    background: #fff3cd; font-size: 13px; font-weight: 600; text-align: center; }
+    background: #2a2100; color: #ffd84a; font-size: 13px; font-weight: 600; text-align: center; }
 
   .dial { position: relative; width: min(86vw, 44vh, 370px); aspect-ratio: 1; align-self: center; margin: 14px 0; }
   .dial::before { display: none; }
   .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
   .dial circle { fill: none; stroke-width: 2.5; stroke-linecap: round; }
-  .dial .track { stroke: rgba(0,0,0,.08); }
+  .dial .track { stroke: rgba(255,255,255,.1); }
   .dial .fill { stroke: var(--accent); stroke-dasharray: 289.03; stroke-dashoffset: 289.03; transition: stroke-dashoffset .12s linear; }
   .dial .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
   #time { font-size: min(22vw, 13vh, 110px); font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; line-height: 1; }
@@ -130,7 +131,7 @@
   .pulse #time { animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.04); } }
 
-  .lbar { display: none; height: 6px; border-radius: 3px; background: rgba(0,0,0,.08); overflow: hidden; margin: 0 0 12px; }
+  .lbar { display: none; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; margin: 0 0 12px; }
   .lbar div { height: 100%; width: 0; background: var(--accent); transition: width .12s linear; }
 
   /* pantalla gigante */
@@ -149,9 +150,9 @@
   #rounds .lbl { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .14em; }
   #rounds .n { font-size: 36px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
   #rounds .b { display: flex; gap: 8px; }
-  #rounds button { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: 26px; transition: transform .1s; }
+  #rounds button { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); font-size: 26px; transition: transform .1s; }
   #rounds button:active { transform: scale(.9); }
-  #rounds .main #rp { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #rounds .main #rp { background: var(--accent); border-color: var(--accent); color: var(--on); }
   #rounds .small .n { font-size: 24px; }
   #rounds .small button { width: 42px; height: 42px; font-size: 22px; }
 
@@ -162,16 +163,20 @@
   .lap b { font-size: 17px; font-weight: 600; }
   .lap em { font-style: normal; color: var(--muted); font-size: 13px; min-width: 70px; text-align: right; }
 
+  .wtxt { width: min(100%, 360px); margin: 8px auto; padding: 12px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--card); font: inherit; font-size: 16px; line-height: 1.4; color: var(--ink); resize: vertical;
+    user-select: text; -webkit-user-select: text; }
+  #setup .wtxt { width: 100%; margin: 14px 0 0; }
   .btns { display: flex; gap: 10px; padding-top: 6px; }
   .big { flex: 1; display: flex; align-items: center; justify-content: center; height: 58px; padding: 0 10px;
     border: 1px solid var(--line); border-radius: 16px; font-size: 15px; font-weight: 700; letter-spacing: .05em;
-    color: var(--ink); background: #fff; transition: transform .12s; white-space: nowrap; }
+    color: var(--ink); background: var(--card); transition: transform .12s; white-space: nowrap; }
   .big svg { display: none; }
   .big:active { transform: scale(.97); }
-  .big.y { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .big.g { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .big.y { background: var(--accent); border-color: var(--accent); color: var(--on); }
+  .big.g { background: var(--ok); border-color: var(--ok); color: var(--on); }
   .big.r { background: #ff453a; border-color: #ff453a; color: #fff; }
-  .big.ghost { background: #fff; }
+  .big.ghost { background: var(--card); }
   .big:disabled { opacity: .55; }
 </style>
 </head>
@@ -210,6 +215,7 @@
       <div class="b"><button id="xm">−</button><button id="xp">+</button></div></div>
   </div>
   <div class="card laps" id="laps"></div>
+  <textarea id="wtxt" class="wtxt" placeholder="Escribí el WOD acá…" rows="5"></textarea>
   <div class="spacer"></div>
   <div class="btns" id="ctl"></div>
 </div>
@@ -218,9 +224,7 @@
 const MODES = {
   fortime: { name: 'For Time', tag: 'Hacia arriba', hint: 'Cronómetro hacia arriba. Marcá vueltas y terminá cuando completes el WOD.' },
   amrap:   { name: 'AMRAP',    tag: 'Cuenta atrás', hint: 'Cuenta regresiva. Contá rondas y repeticiones extra.' },
-  emom:    { name: 'EMOM',     tag: 'Cada intervalo', hint: 'Cada intervalo arranca una nueva ronda.' },
   tabata:  { name: 'Tabata',   tag: 'Trabajo / descanso', hint: 'Intervalos cortos de trabajo y descanso.' },
-  series:  { name: 'Series',   tag: 'Rondas con pausa', hint: 'Trabajo y descanso por ronda. Ej: 5 series de 3 min con 1 min de pausa.' },
 };
 const PATHS = {
   fortime: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/>',
@@ -242,9 +246,7 @@ const ico = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const FIELDS = {
   fortime: [['minutes', 'Time cap', 0, 120, 1, 'minutos · 0 = sin cap']],
   amrap:   [['minutes', 'Duración', 1, 120, 1, 'minutos']],
-  emom:    [['interval', 'Intervalo', 10, 600, 5, 'segundos'], ['rounds', 'Rondas', 1, 100, 1, '']],
-  tabata:  [['work', 'Trabajo', 5, 300, 5, 'segundos'], ['rest', 'Descanso', 0, 300, 5, 'segundos'], ['rounds', 'Rondas', 1, 50, 1, '']],
-  series:  [['sWork', 'Trabajo', 5, 1800, 15, 'min:seg'], ['sRest', 'Descanso', 0, 900, 15, 'min:seg'], ['sRounds', 'Rondas', 1, 50, 1, '']],
+  tabata:  [['tWork', 'Trabajo', 1, 30, 1, 'minutos'], ['tRest', 'Descanso', 0, 30, 1, 'minutos'], ['rounds', 'Rondas', 1, 50, 1, '']],
 };
 const PRE = ['pre', 'Cuenta previa', 0, 30, 1, 'segundos'];
 const TONES = { beep: ['Beep', 'square', .22], suave: ['Suave', 'sine', .45], alarma: ['Alarma', 'sawtooth', .2] };
@@ -256,8 +258,8 @@ const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); ret
 const put = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const fmt = s => { s = Math.floor(s); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
 
-const cfg = Object.assign({ mode: 'amrap', minutes: 10, interval: 60, rounds: 10, work: 20, rest: 10,
-  sWork: 180, sRest: 60, sRounds: 5, pre: 10 }, get('wodcfg', {}));
+const cfg = Object.assign({ mode: 'amrap', minutes: 10, rounds: 8, tWork: 1, tRest: 1, pre: 10, text: '' }, get('wodcfg', {}));
+if (!MODES[cfg.mode]) cfg.mode = 'amrap';
 const set = Object.assign({ sound: true, tone: 'beep', alerts: true, big: false }, get('wodset', {}));
 let wods = get('wodsaved', []);
 let hist = get('wodhist', []);
@@ -272,12 +274,10 @@ const describe = c => {
   switch (c.mode) {
     case 'fortime': return 'For Time' + (c.minutes ? ' · cap ' + c.minutes + ' min' : '');
     case 'amrap': return 'AMRAP ' + c.minutes + ' min';
-    case 'emom': return 'EMOM ' + c.rounds + ' × ' + c.interval + 's';
-    case 'tabata': return 'Tabata ' + c.rounds + ' × ' + c.work + '/' + c.rest + 's';
-    case 'series': return 'Series ' + c.sRounds + ' × ' + fmt(c.sWork) + ' / ' + fmt(c.sRest);
+    case 'tabata': return 'Tabata ' + c.rounds + ' × ' + c.tWork + '/' + c.tRest + ' min';
   }
 };
-const fieldVal = k => (k === 'sWork' || k === 'sRest') ? fmt(cfg[k]) : cfg[k];
+const fieldVal = k => cfg[k];
 
 let tt;
 function toast(msg) {
@@ -293,6 +293,7 @@ function paneTimer() {
     `<div class="row"><label>${label}${note ? `<small>${note}</small>` : ''}</label><div class="step">
       <button data-k="${k}" data-d="-1">−</button><span>${fieldVal(k)}</span><button data-k="${k}" data-d="1">+</button></div></div>`).join('');
   return `<div class="modes">${modes}</div>
+    <textarea id="wtxt2" class="wtxt" placeholder="Escribí el WOD acá…" rows="5">${esc(cfg.text || '')}</textarea>
     <div class="hint">${curName ? `<b>${esc(curName)}</b> · ` : ''}${MODES[cfg.mode].hint}</div>
     <div class="card">${rows}</div>
     <button class="ghostbtn" data-act="savewod">${ico('save')}Guardar este WOD</button>`;
@@ -367,27 +368,26 @@ $('setup').onclick = e => {
   else if (d.act === 'savewod') saveWod();
   else if (d.load) {
     const w = wods.find(x => String(x.id) === d.load); if (!w) return;
-    Object.assign(cfg, w.cfg); curName = w.name; put('wodcfg', cfg); tab = 'timer'; renderSetup(); toast('Cargado: ' + w.name);
+    Object.assign(cfg, w.cfg); $('wtxt').value = cfg.text || ''; curName = w.name; put('wodcfg', cfg); tab = 'timer'; renderSetup(); toast('Cargado: ' + w.name);
   }
   else if (d.delw) { if (confirm('¿Borrar este WOD guardado?')) { wods = wods.filter(x => String(x.id) !== d.delw); put('wodsaved', wods); renderSetup(); } }
   else if (d.delh) { if (confirm('¿Borrar este resultado?')) { hist = hist.filter(x => String(x.id) !== d.delh); put('wodhist', hist); renderSetup(); } }
 };
 
 // ---------- Derivados ----------
-const isIv = () => cfg.mode === 'tabata' || cfg.mode === 'series';
-const W = () => cfg.mode === 'series' ? cfg.sWork : cfg.work;
-const R = () => cfg.mode === 'series' ? cfg.sRest : cfg.rest;
-const N = () => cfg.mode === 'series' ? cfg.sRounds : cfg.rounds;
+const isIv = () => cfg.mode === 'tabata';
+const W = () => cfg.tWork * 60;
+const R = () => cfg.tRest * 60;
+const N = () => cfg.rounds;
 
 function total() {
   switch (cfg.mode) {
     case 'fortime': return cfg.minutes > 0 ? cfg.minutes * 60 : null;
     case 'amrap': return cfg.minutes * 60;
-    case 'emom': return cfg.interval * cfg.rounds;
     default: return (W() + R()) * N();
   }
 }
-const cycle = () => cfg.mode === 'emom' ? cfg.interval : W() + R();
+const cycle = () => W() + R();
 const round = () => Math.min(Math.floor(elapsed / cycle()) + 1, N());
 const phase = () => !isIv() ? 'work' : (elapsed % cycle() < W() ? 'work' : 'rest');
 function display() {
@@ -396,7 +396,6 @@ function display() {
   switch (cfg.mode) {
     case 'fortime': return elapsed;
     case 'amrap': return Math.max(total() - elapsed, 0);
-    case 'emom': return cfg.interval - (elapsed % cfg.interval);
     default: { const c = elapsed % cycle(); return c < W() ? W() - c : cycle() - c; }
   }
 }
@@ -482,7 +481,7 @@ function tick() {
       if (!minWarn && t >= 180 && t - elapsed <= 60) { minWarn = true; notice('Último minuto', 3); }
     }
     if (cfg.mode !== 'fortime') {
-      const id = cfg.mode === 'emom' ? round() : round() * 2 + (phase() === 'work' ? 0 : 1);
+      const id = round() * 2 + (phase() === 'work' ? 0 : 1);
       if (lastPhase !== -1 && id !== lastPhase) beepLong();
       lastPhase = id;
       const s = Math.ceil(display());
@@ -570,7 +569,6 @@ function paint() {
         : cfg.mode === 'amrap' ? getResult().text.toUpperCase() : '';
   }
   else if (state === 'paused') head = 'PAUSA';
-  else if (cfg.mode === 'emom') { head = curName ? label : 'EMOM'; sub = `RONDA ${round()} / ${N()}`; }
   else if (isIv()) { head = phase() === 'work' ? 'TRABAJO' : 'DESCANSO'; sub = `RONDA ${round()} / ${N()}`; }
   else head = label;
   $('head').textContent = head;
@@ -581,6 +579,10 @@ function paint() {
   $('run').classList.toggle('pulse', state === 'countdown');
 }
 
+$('wtxt').value = cfg.text || '';
+const onTxt = e => { cfg.text = e.target.value; put('wodcfg', cfg); $('wtxt').value = cfg.text; };
+$('wtxt').oninput = onTxt;
+$('setup').addEventListener('input', e => { if (e.target.id === 'wtxt2') onTxt(e); });
 $('start').onclick = begin;
 $('ctl').onclick = e => {
   const a = e.target.dataset.a;
